@@ -2,7 +2,7 @@
 // import authenticate from './authenticate';
 import passport from './authenticate';
 import './db';
-import './seedData'
+import './seedData/index'
 import dotenv from 'dotenv';
 import express from 'express';
 import moviesRouter from './api/movies';
@@ -32,6 +32,7 @@ app.use('/api/genres', genresRouter);
 app.use('/api/users', usersRouter);
 app.use(errHandler);
 
-app.listen(port, () => {
+let server = app.listen(port, () => {
   console.info(`Server running at ${port}`);
 });
+module.exports = server
