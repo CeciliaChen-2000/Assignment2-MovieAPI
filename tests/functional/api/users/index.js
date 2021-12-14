@@ -44,18 +44,18 @@ describe("Users endpoint", () => {
     api.close();
   });
   describe("GET /api/users ", () => {
-    it("should return the 2 users and a status 200", (done) => {
+    it("should return the 2 users and a status 200", () => {
       request(api)
         .get("/api/users")
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .end((err, res) => {
+        .then((err, res) => {
           expect(res.body).to.be.a("array");
           expect(res.body.length).to.equal(2);
           let result = res.body.map((user) => user.username);
           expect(result).to.have.members(["user1", "user2"]);
-          done();
+          // done();
         });
     });
   });
