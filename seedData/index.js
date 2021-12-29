@@ -6,6 +6,8 @@ import genreModel from '../api/genres/genreModel';
 import genres from './genres';
 import actorModel from '../api/actors/actorModel';
 import actors from './actors.js'
+import tvModel from '../api/tvs/tvModel';
+import tvs from './tvs.js'
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -59,9 +61,22 @@ export async function loadActors() {
   }
 }
 
+export async function loadTVs() {
+  console.log('load TV data');
+  console.log(tvs.length);
+  try {
+    await tvModel.deleteMany();
+    await tvModel.collection.insertMany(tvs);
+    console.info(`${tvs.length} TVs were successfully stored.`);
+  } catch (err) {
+    console.error(`failed to Load tvs Data: ${err}`);
+  }
+}
+
 if (process.env.SEED_DB == 'True') {
   loadUsers();
   loadGenres();
   loadMovies();
   loadActors();
+  loadTVs();
 }

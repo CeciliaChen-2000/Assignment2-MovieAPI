@@ -1,10 +1,3 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports["default"] = void 0;
-
 var actors = [
     {
         "profile_path": "/z3sLuRKP7hQVrvSTsqdLjGSldwG.jpg",
