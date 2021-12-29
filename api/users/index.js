@@ -1,5 +1,6 @@
 import movieModel from '../movies/movieModel';
 import actorModel from '../actors/actorModel';
+import tvModel from '../tvs/tvModel';
 import jwt from 'jsonwebtoken';
 import express from 'express';
 import User from './userModel';
@@ -69,6 +70,12 @@ router.get('/:userName/likes', asyncHandler(async (req, res) => {
     res.status(200).json(user.likes);
 }));
 
+router.get('/:userName/watchlist', asyncHandler(async (req, res) => {
+    const userName = req.params.userName;
+    const user = await User.findByUserName(userName).populate('watchlist');
+    res.status(200).json(user.watchlist);
+}));
+
 //Add a favourite, including Error Handling
 router.post('/:userName/favourites', asyncHandler(async (req, res) => {
     const newFavourite = req.body.id;
@@ -104,6 +111,25 @@ router.post('/:userName/likes', asyncHandler(async (req, res) => {
         res.status(201).json(user);
     }else{
         res.status(401).json({code: 401,msg: 'Already in likes.'});
+    }
+}));
+
+//Add a watchlist, including Error Handling
+router.post('/:userName/watchlist', asyncHandler(async (req, res) => {
+    const newWatchlist = req.body.id;
+    const userName = req.params.userName;
+    const tv = await tvModel.findByTVDBId(newWatchlist);
+    if(tv == null){
+        res.status(401).json({code: 401,msg: 'TV id does not existed.'});
+    }
+    const user = await User.findByUserName(userName);
+
+    if (user.watchlist.indexOf(tv._id) == -1) {
+        await user.watchlist.push(tv._id);
+        await user.save();
+        res.status(201).json(user);
+    }else{
+        res.status(401).json({code: 401,msg: 'Already in watchlist.'});
     }
 }));
 
