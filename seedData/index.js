@@ -1,13 +1,12 @@
-import movieModel from '../api/movies/movieModel';
-import movies from './movies.js';
 import userModel from '../api/users/userModel';
 import users from './users';
+
+import movieModel from '../api/movies/movieModel';
 import genreModel from '../api/genres/genreModel';
-import genres from './genres';
 import actorModel from '../api/actors/actorModel';
-import actors from './actors.js'
 import tvModel from '../api/tvs/tvModel';
-import tvs from './tvs.js'
+
+import { getMovies, getGenres, getActors, getTVs } from '../api/tmdb-api';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -28,6 +27,7 @@ async function loadUsers() {
 async function loadGenres() {
   console.log('load genre Data');
   try {
+    const genres = await getGenres();
     await genreModel.deleteMany();
     await genreModel.collection.insertMany(genres);
     console.info(`${genres.length} genres were successfully stored.`);
@@ -38,9 +38,9 @@ async function loadGenres() {
 
 // deletes all movies documents in collection and inserts test data
 export async function loadMovies() {
-  console.log('load seed data');
-  console.log(movies.length);
+  console.log('load movie data');
   try {
+    const movies = await getMovies();
     await movieModel.deleteMany();
     await movieModel.collection.insertMany(movies);
     console.info(`${movies.length} Movies were successfully stored.`);
@@ -51,8 +51,8 @@ export async function loadMovies() {
 
 export async function loadActors() {
   console.log('load actor data');
-  console.log(actors.length);
   try {
+    const actors = await getActors();
     await actorModel.deleteMany();
     await actorModel.collection.insertMany(actors);
     console.info(`${actors.length} Actors were successfully stored.`);
@@ -63,8 +63,8 @@ export async function loadActors() {
 
 export async function loadTVs() {
   console.log('load TV data');
-  console.log(tvs.length);
   try {
+    const tvs = await getTVs();
     await tvModel.deleteMany();
     await tvModel.collection.insertMany(tvs);
     console.info(`${tvs.length} TVs were successfully stored.`);
