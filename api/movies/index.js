@@ -122,8 +122,13 @@ router.get('/tmdb/topRated', asyncHandler( async(req, res) => {
 //get recommendation movies
 router.get('/:id/recommendations', asyncHandler( async(req, res) => {
     const id = parseInt(req.params.id);
-    const recommendationMovies = await getRecommendationMovies(id);
-    res.status(200).json(recommendationMovies);
+    const movie = await movieModel.findByMovieDBId(id);
+    if(movie){
+        const recommendationMovies = await getRecommendationMovies(id);
+        res.status(200).json(recommendationMovies);
+    } else {
+        res.status(404).json({message: 'The movie id you requested could not be found.', status_code: 404});
+    }
 }));
 
 export default router;
