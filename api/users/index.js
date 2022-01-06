@@ -58,6 +58,17 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// Delete a user
+router.delete('/:userName', asyncHandler(async (req, res, next) => {
+    const userName = req.params.userName;
+    const user = await User.findByUserName(userName);
+    if(user){
+        await User.collection.deleteOne({username:userName});
+        res.status(200).json({ code: 200, msg: 'User deletion successful' });
+    } else{
+        res.status(404).send({ message: `Unable to find user.`, status: 404 });
+    }
+}));
 router.get('/:userName/favourites', asyncHandler(async (req, res) => {
     const userName = req.params.userName;
     const user = await User.findByUserName(userName).populate('favourites');

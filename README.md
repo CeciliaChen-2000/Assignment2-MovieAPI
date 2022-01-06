@@ -1,16 +1,25 @@
 # Assignment 2 - Web API.
 
-Name: Your Name
+Name: Liangyu Chen
 
 ## Features.
 
-...... A bullet-point list of the ADDITIONAL features you have implemented in the API **THAT WERE NOT IN THE LABS** ......,
+...... A bullet-point list of the ADDITIONAL features that have been implemented in the API **THAT WERE NOT IN THE LABS** ......,
  
- + Feature 1 - .... a statement of its purpose/objective ..... 
- + Feature 2 - .......
- + Feature 3 = ......
- + etc
- + etc
+ + Feature 1 - Users - GET a list of users 
+ + Feature 2 - Users - POST to login or register
+ + Feature 3 - Users - PUT to update user information 
+ + Feature 4 - Users - 
+ + Feature 5 - 
+ + Feature
+ + Feature
+ + Feature
+ + Feature
+ + Feature
+ + Feature
+ + Feature
+ + Feature
+
 
 ## Installation Requirements
 
