@@ -3,8 +3,6 @@
 Name: Liangyu Chen
 
 ## Features.
-
-...... A bullet-point list of the ADDITIONAL features that have been implemented in the API **THAT WERE NOT IN THE LABS** ......,
  
  + Feature  1 - Users - DELETE a user by username
  + Feature  2 - Users - GET like actors list of a user
@@ -247,8 +245,6 @@ export const getRecommendationsMovies = (args) => {
 
 ## Extra features
 
-. . Briefly explain any non-standard features, functional or non-functional, developed for the app.  
 
 ## Independent learning
 
-. . State the non-standard aspects of React/Express/Node (or other related technologies) that you researched and applied in this assignment . .  
