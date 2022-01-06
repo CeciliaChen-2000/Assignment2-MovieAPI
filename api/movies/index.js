@@ -1,7 +1,7 @@
+import express from 'express';
 import movieModel from './movieModel';
 import reviewModel from '../reviews/reviewModel';
 import asyncHandler from 'express-async-handler';
-import express from 'express';
 import uniqid from 'uniqid';
 import { getUpcomingMovies, getNowPlayingMovies, getPopularMovies, getTopRatedMovies, getRecommendationMovies, getMovieReviews } from '../tmdb-api';
 
@@ -87,7 +87,7 @@ router.post('/:id/reviews', asyncHandler(async (req, res, next) => {
                 await movie.save();
                 res.status(201).json({code: 201, msg: 'Successful created new review.'});
             }else{
-                res.status(401).json({code: 401,msg: 'Review content should be bo less than 10 characters.'});
+                res.status(401).json({code: 401,msg: 'Review content should be no less than 10 characters.'});
             }
         }
     } else {

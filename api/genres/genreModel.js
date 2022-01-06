@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const GenreSchema = new Schema({
-    id: { type: Number, unique: true, required: true },
+    id: { type: Number, unique: false, required: true },
     name: { type: String, required: true }
 });
 

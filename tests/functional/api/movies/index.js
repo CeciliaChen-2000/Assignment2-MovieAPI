@@ -5,12 +5,14 @@ import Movie from "../../../../api/movies/movieModel";
 import api from "../../../../index";
 import { getMovies, getMovieReviews, getRecommendationMovies } from "../../../../api/tmdb-api";
 
-let movies;
-let recommendations;
-let reviews;
+
 const expect = chai.expect;
 let db;
 let token = "eyJhbGciOiJIUzI1NiJ9.dXNlcjI.Khzm2HbzffuLtUSkKQX3eGrWGOnMzlM4T-zElZu7gNA";
+
+let movies;
+let recommendations;
+let reviews;
 
 describe("Movies endpoint", () => {
   before(() => {
@@ -32,6 +34,8 @@ describe("Movies endpoint", () => {
   beforeEach(async () => {
     try {
       movies = await getMovies();
+      reviews = await getMovieReviews(movies[0].id);
+      recommendations = await getRecommendationMovies(movies[0].id);
       await Movie.deleteMany();
       await Movie.collection.insertMany(movies);
     } catch (err) {
@@ -43,20 +47,20 @@ describe("Movies endpoint", () => {
   });
 
 
-
-
   //get movies
-  describe("GET /api/movies ", () => {
-    it("should return 20 movies and a status 200", () => {
+  describe("GET /api/movies", () => {
+    it("should return 20 movies and a status 200", (done) => {
       request(api)
         .get("/api/movies?page=1&limit=20")
-        .set("Authorization", "BEARER " + token)
-        .set("Accept", "application/json")
+        // .set("Authorization", "BEARER " + token)
+        .set('Accept', 'application/json')
         .expect("Content-Type", /json/)
         .expect(200)
-        .then((err, res) => {
+        .end((err,res) => {
+          if(err){throw err;}
           expect(res.body.results).to.be.a("array");
           expect(res.body.results.length).to.equal(movies.length);
+          done();
         });
     });
   });
@@ -66,15 +70,17 @@ describe("Movies endpoint", () => {
   //get movie details by id
   describe("GET /api/movies/:id", () => {
     describe("when the id is valid", () => {
-      it("should return the matching movie", () => {
+      it("should return the matching movie", (done) => {
         request(api)
           .get(`/api/movies/${movies[0].id}`)
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(200)
-          .then((res) => {
+          .end((err,res) => {
+            if(err){throw err;}
             expect(res.body).to.have.property("title", movies[0].title);
+            done();
           });
       });
     });
@@ -82,7 +88,7 @@ describe("Movies endpoint", () => {
       it("should return the NOT found message", () => {
         request(api)
           .get("/api/movies/9999")
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(404)
@@ -99,19 +105,18 @@ describe("Movies endpoint", () => {
   //get movie reviews by movie id
   describe("GET /api/movies/:id/reviews", () => {
     describe("when the movie id is valid", () => {
-      before(() => {
-        reviews = getMovieReviews(movies[0].id);
-      });
-      it("should return reviews of the matching movie", () => {
+      it("should return reviews of the matching movie", done => {
         request(api)
           .get(`/api/movies/${movies[0].id}/reviews`)
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(200)
-          .then((err, res) => {
+          .end((err, res) => {
+            if (err) throw err
             expect(res.body).to.be.a("array");
             expect(res.body.length).to.equal(reviews.length);
+            done();
           });
       });
     });
@@ -120,7 +125,7 @@ describe("Movies endpoint", () => {
       it("should return the NOT found message", () => {
         request(api)
           .get("/api/movies/9999/reviews")
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(404)
@@ -140,7 +145,7 @@ describe("Movies endpoint", () => {
         it("should return the message of empty input", () => {
           request(api)
             .post(`/api/movies/${movies[0].id}/reviews`)
-            .set("Authorization", "BEARER " + token)
+            // .set("Authorization", "BEARER " + token)
             .set("Accept", "application/json")
             .send({ author: "User1" })
             .expect("Content-Type", /json/)
@@ -156,15 +161,14 @@ describe("Movies endpoint", () => {
           it("should return the message of review content too short", () => {
             request(api)
               .post(`/api/movies/${movies[0].id}/reviews`)
-              .set("Authorization", "BEARER " + token)
+              // .set("Authorization", "BEARER " + token)
               .set("Accept", "application/json")
               .send({ author: "User1", content: "Good" })
               .expect("Content-Type", /json/)
               .expect(401)
               .expect({
                 status_code: 401,
-                message: "Review content should be bo less than 10 characters.",
-
+                message: "Review content should be no less than 10 characters.",
               });
           })
         });
@@ -172,7 +176,7 @@ describe("Movies endpoint", () => {
           it("should add the review and return message of successfully added",()=>{
             request(api)
               .post(`/api/movies/${movies[0].id}/reviews`)
-              .set("Authorization", "BEARER " + token)
+              // .set("Authorization", "BEARER " + token)
               .set("Accept", "application/json")
               .send({
                 author : "User1",
@@ -193,7 +197,7 @@ describe("Movies endpoint", () => {
       it("should return the NOT found message", () => {
         request(api)
           .post('/api/movies/9999/reviews')
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .send({
             author: "User1",
@@ -208,22 +212,23 @@ describe("Movies endpoint", () => {
       })
     })
   })
+
+
   //get recommendation movies by movie id
   describe("GET /api/movies/:id/recommendations", () => {
     describe("when the movie id is valid", () => {
-      before(() => {
-        recommendations = getRecommendationMovies(movies[0].id);
-      });
-      it("should return the recommendation movies of the matching movie", () => {
+      it("should return the recommendation movies of the matching movie", (done) => {
         request(api)
           .get(`/api/movies/${movies[0].id}/recommendations`)
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(200)
-          .then((err, res) => {
+          .end((err, res) => {
+            if (err) throw err
             expect(res.body.results).to.be.a("array");
-            expect(res.body.results.length).to.equal(recommendations.length);
+            expect(res.body.results.length).to.equal(recommendations.results.length);
+            done();
           });
       });
     });
@@ -232,7 +237,7 @@ describe("Movies endpoint", () => {
       it("should return the NOT found message", () => {
         request(api)
           .get("/api/movies/9999/recommendations")
-          .set("Authorization", "BEARER " + token)
+          // .set("Authorization", "BEARER " + token)
           .set("Accept", "application/json")
           .expect("Content-Type", /json/)
           .expect(404)
@@ -245,61 +250,69 @@ describe("Movies endpoint", () => {
   })
 
   describe("GET /api/movies/tmdb/upcoming", () => {
-    it("should return 20 upcoming movies and a status 200", () => {
+    it("should return 20 upcoming movies and a status 200", (done) => {
       request(api)
-        .get("api/movies/tmdb/upcoming")
-        .set("Authorization", "BEARER " + token)
+        .get("/api/movies/tmdb/upcoming")
+        // .set("Authorization", "BEARER " + token)
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .then((err, res) => {
+        .end((err, res) => {
+          if (err) throw err;
           expect(res.body.results).to.be.a("array");
-          expect(res.body.results).to.equal(20);
+          expect(res.body.results.length).to.equal(20);
+          done();
         });
     });
   });
 
   describe("GET /api/movies/tmdb/popular", () => {
-    it("should return 20 popular movies and a status 200", () => {
+    it("should return 20 popular movies and a status 200", (done) => {
       request(api)
-        .get("api/movies/tmdb/popular")
-        .set("Authorization", "BEARER " + token)
+        .get("/api/movies/tmdb/popular")
+        // .set("Authorization", "BEARER " + token)
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .then((err, res) => {
+        .end((err, res) => {
+          if (err) throw err;
           expect(res.body.results).to.be.a("array");
-          expect(res.body.results).to.equal(20);
-        });
-    });
-  });
-
-  describe("GET /api/movies/tmdb/topRated", () => {
-    it("should return 20 topRated movies and a status 200", () => {
-      request(api)
-        .get("api/movies/tmdb/topRated")
-        .set("Authorization", "BEARER " + token)
-        .set("Accept", "application/json")
-        .expect("Content-Type", /json/)
-        .expect(200)
-        .then((err, res) => {
-          expect(res.body.results).to.be.a("array");
-          expect(res.body.results).to.equal(20);
+          expect(res.body.results.length).to.equal(20);
+          done();
         });
     });
   });
 
   describe("GET /api/movies/tmdb/nowPlaying", () => {
-    it("should return 20 nowPlaying movies and a status 200", () => {
+    it("should return 20 nowPlaying movies and a status 200", (done) => {
       request(api)
-        .get("api/movies/tmdb/nowPlaying")
-        .set("Authorization", "BEARER " + token)
+        .get("/api/movies/tmdb/nowPlaying")
+        // .set("Authorization", "BEARER " + token)
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .then((err, res) => {
+        .end((err, res) => {
+          if (err) throw err;
           expect(res.body.results).to.be.a("array");
-          expect(res.body.results).to.equal(20);
+          expect(res.body.results.length).to.equal(20);
+          done();
+        });
+    });
+  });
+
+  describe("GET /api/movies/tmdb/topRated", () => {
+    it("should return 20 topRated movies and a status 200", (done) => {
+      request(api)
+        .get("/api/movies/tmdb/topRated")
+        // .set("Authorization", "BEARER " + token)
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .end((err, res) => {
+          if (err) throw err;
+          expect(res.body.results).to.be.a("array");
+          expect(res.body.results.length).to.equal(20);
+          done();
         });
     });
   });
