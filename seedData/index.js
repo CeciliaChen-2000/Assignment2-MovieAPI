@@ -73,7 +73,7 @@ export async function loadTVs() {
   }
 }
 
-if (process.env.SEED_DB == 'True') {
+if (process.env.SEED_DB == 'true') {
   loadUsers();
   loadGenres();
   loadMovies();
