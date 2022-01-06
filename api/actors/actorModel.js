@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const ActorSchema = new Schema({
     profile_path: { type: String },
     adult: { type: Boolean },
-    id: { type: Number, required: true, unique: true },
+    id: { type: Number, required: true, unique: false },
     known_for: [{
         poster_path: { type: String },
         adult: { type: Boolean },
