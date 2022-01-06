@@ -5,7 +5,7 @@ import asyncHandler from 'express-async-handler';
 import uniqid from 'uniqid';
 import { getUpcomingMovies, getNowPlayingMovies, getPopularMovies, getTopRatedMovies, getRecommendationMovies, getMovieReviews } from '../tmdb-api';
 
-const router = express.Router(); 
+const router = express.Router();
 
 //get all movies list
 router.get('/', asyncHandler(async (req, res) => {
@@ -30,7 +30,53 @@ router.get('/:id', asyncHandler(async (req, res) => {
     if (movie) {
         res.status(200).json(movie);
     } else {
-        res.status(404).json({message: 'The resource you requested could not be found.', status_code: 404});
+        res.status(404).json({ message: 'The resource you requested could not be found.', status_code: 404 });
+    }
+}));
+
+// Post a movie
+router.post('/', asyncHandler(async (req, res, next) => {
+    let newMovie = req.body;
+    if (newMovie && newMovie.title) {
+        //Adds a random id if missing. 
+        !newMovie.id ? newMovie.id = Math.round(Math.random() * 10000) : newMovie
+        await movieModel.collection.insertOne(req.body);
+        res.status(201).send(newMovie);
+    } else {
+        res.status(405).send({
+            message: "Invalid Movie Data",
+            status: 405
+        });
+    }
+}));
+
+
+// Update a movie
+router.put('/:id', asyncHandler(async (req, res, next) => {
+    const id = parseInt(req.params.id);
+    const movie = await movieModel.findByMovieDBId(id);
+    if (movie) {
+        const result = await movieModel.updateOne({
+            id: req.params.id,
+        }, req.body);
+        if (result.matchedCount) {
+            res.status(200).json({ code: 200, msg: 'Movie Updated Sucessfully' });
+        }
+    }
+    else {
+        res.status(404).send({ message: `Unable to find movie with id: ${id}.`, status: 404 });
+    }
+}));
+
+// Delete a movie
+router.delete('/:id', asyncHandler(async (req, res, next) => {
+    const id = parseInt(req.params.id);
+    const movie = await movieModel.findByMovieDBId(id);
+    if(movie){
+        const result = await movieModel.collection.deleteOne({id: id});
+        res.status(200).json({ code: 200, msg: 'Movie deletion successful' });
+    } else{
+        res.status(404).send({ message: `Unable to find movie with id: ${id}.`, status: 404 });
     }
 }));
 
@@ -43,7 +89,7 @@ router.get('/:id/reviews', asyncHandler(async (req, res, next) => {
     //whether the movie id exists.
     if (movie) {
         //whether the movie has been loaded before
-        if (movie.reviews.length){
+        if (movie.reviews.length) {
             //load from database
             console.log("load from database");
             const localMovie = await movieModel.findByMovieDBId(id).populate('reviews');
@@ -77,17 +123,17 @@ router.post('/:id/reviews', asyncHandler(async (req, res, next) => {
         req.body.id = uniqid();
 
         if (!req.body.author || !req.body.content) {
-            res.status(401).json({success: false, msg: 'Please enter your name and review content.'});
+            res.status(401).json({ success: false, msg: 'Please enter your name and review content.' });
             return next();
-        } else{
+        } else {
             let contentRegExp = /^(a-z|A-Z|0-9)*[^$%^&*;:,<>?()\""\']{10,}$/;
-            if(contentRegExp.test(req.body.content)){
+            if (contentRegExp.test(req.body.content)) {
                 await reviewModel.collection.insertOne(req.body);
                 await movie.reviews.push(req.body);
                 await movie.save();
-                res.status(201).json({code: 201, msg: 'Successful created new review.'});
-            }else{
-                res.status(401).json({code: 401,msg: 'Review content should be no less than 10 characters.'});
+                res.status(201).json({ code: 201, msg: 'Successful created new review.' });
+            } else {
+                res.status(401).json({ code: 401, msg: 'Review content should be no less than 10 characters.' });
             }
         }
     } else {
@@ -96,38 +142,38 @@ router.post('/:id/reviews', asyncHandler(async (req, res, next) => {
 }));
 
 //get upcoming movies
-router.get('/tmdb/upcoming', asyncHandler( async(req, res) => {
+router.get('/tmdb/upcoming', asyncHandler(async (req, res) => {
     const upcomingMovies = await getUpcomingMovies();
     res.status(200).json(upcomingMovies);
 }));
 
 //get nowPlaying movies
-router.get('/tmdb/nowPlaying', asyncHandler( async(req, res) => {
+router.get('/tmdb/nowPlaying', asyncHandler(async (req, res) => {
     const nowPlayingMovies = await getNowPlayingMovies();
     res.status(200).json(nowPlayingMovies);
 }));
 
 //get popular movies
-router.get('/tmdb/popular', asyncHandler( async(req, res) => {
+router.get('/tmdb/popular', asyncHandler(async (req, res) => {
     const popularMovies = await getPopularMovies();
     res.status(200).json(popularMovies);
 }));
 
 //get topRated movies
-router.get('/tmdb/topRated', asyncHandler( async(req, res) => {
+router.get('/tmdb/topRated', asyncHandler(async (req, res) => {
     const topRatedMovies = await getTopRatedMovies();
     res.status(200).json(topRatedMovies);
 }));
 
 //get recommendation movies
-router.get('/:id/recommendations', asyncHandler( async(req, res) => {
+router.get('/:id/recommendations', asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id);
     const movie = await movieModel.findByMovieDBId(id);
-    if(movie){
+    if (movie) {
         const recommendationMovies = await getRecommendationMovies(id);
         res.status(200).json(recommendationMovies);
     } else {
-        res.status(404).json({message: 'The movie id you requested could not be found.', status_code: 404});
+        res.status(404).json({ message: 'The movie id you requested could not be found.', status_code: 404 });
     }
 }));
 
