@@ -8,7 +8,7 @@ import { getMovies, getMovieReviews, getRecommendationMovies } from "../../../..
 
 const expect = chai.expect;
 let db;
-let token = "eyJhbGciOiJIUzI1NiJ9.dXNlcjI.Khzm2HbzffuLtUSkKQX3eGrWGOnMzlM4T-zElZu7gNA";
+// let token = "eyJhbGciOiJIUzI1NiJ9.dXNlcjI.Khzm2HbzffuLtUSkKQX3eGrWGOnMzlM4T-zElZu7gNA";
 
 let movies;
 let recommendations;

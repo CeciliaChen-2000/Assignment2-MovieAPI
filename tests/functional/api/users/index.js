@@ -34,7 +34,7 @@ describe("Users endpoint", () => {
       movies = await getMovies();
       actors = await getActors();
       tvs = await getTVs();
-      // await User.deleteMany();
+      await User.deleteMany();
       // Register two users
       await request(api).post("/api/users?action=register").send({
         username: "user1",
@@ -54,17 +54,19 @@ describe("Users endpoint", () => {
 
 
   describe("GET /api/users ", () => {
-    it("should return the 2 users and a status 200", () => {
+    it("should return the 2 users and a status 200", (done) => {
       request(api)
         .get("/api/users")
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .then((err, res) => {
+        .end((err, res) => {
+          if(err) throw err
           expect(res.body).to.be.a("array");
           expect(res.body.length).to.equal(2);
           let result = res.body.map((user) => user.username);
           expect(result).to.have.members(["user1", "user2"]);
+          done();
         });
     });
   });
@@ -118,20 +120,22 @@ describe("Users endpoint", () => {
 
 
   describe("PUT api/users/:id", () => {
-    before(() => {
+    before((done) => {
       request(api)
-        .get('api/users')
+        .get('/api/users')
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
         .expect(200)
-        .then((res) => {
+        .end((err,res) => {
+          if(err) throw err;
           user_id = res.body.map(user => user._id)[0];
+          done();
         })
     })
     describe("when the user id is valid", () => {
       it("should return successful message and update user info", () => {
         request(api)
-          .put(`api/users/${user_id}`)
+          .put(`/api/users/${user_id}`)
           .send({
             username: 'User1',
             password: 'Test123'
@@ -146,7 +150,7 @@ describe("Users endpoint", () => {
     describe("when the user is invalid", () => {
       it("should return failed messaage", () => {
         request(api)
-          .put('api/users/9999')
+          .put('/api/users/9999')
           .send({
             username: 'User1',
             password: 'Test123'
