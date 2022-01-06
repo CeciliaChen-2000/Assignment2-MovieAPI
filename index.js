@@ -47,7 +47,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use('/api/movies', passport.authenticate('jwt', {session: false}), moviesRouter);
 app.use('/api/movies', moviesRouter);
 app.use('/api/actors', passport.authenticate('jwt', {session: false}), actorsRouter);
-app.use('/api/tvs', passport.authenticate('jwt', {session: false}), tvsRouter);
+app.use('/api/tvs', tvsRouter);
 app.use('/api/genres', genresRouter);
 app.use('/api/users', usersRouter);
 app.use(errHandler);
